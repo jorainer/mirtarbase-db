@@ -1,0 +1,81 @@
+#+TITLE:miRTarBase R package
+#+AUTHOR: Johannes Rainer
+#+email: johannes.rainer@i-med.ac.at
+#+OPTIONS: ^:{}
+#+PROPERTY: exports code
+#+PROPERTY: session *R_mirtarbase*
+#+PROPERTY: noweb yes
+#+PROPERTY: results output
+#+PROPERTY: tangle yes
+#+STARTUP: overview
+#+INFOJS_OPT: view:t toc:t ltoc:t mouse:underline buttons:0 path:http://thomasf.github.io/solarized-css/org-info.min.js
+#+HTML_HEAD: <link rel='stylesheet' type='text/css' href='http://thomasf.github.io/solarized-css/solarized-light.min.css' />
+#+LATEX_HEADER: \usepackage[backend=bibtex,style=chem-rsc,hyperref=true]{biblatex}
+#+LATEX_HEADER: \usepackage{parskip}
+#+LATEX_HEADER: \setlength{\textwidth}{17.0cm}
+#+LATEX_HEADER: \setlength{\hoffset}{-2.5cm}
+#+LATEX_HEADER: \setlength{\textheight}{22cm}
+#+LATEX_HEADER: \setlength{\voffset}{-1.5cm}
+#+LATEX_HEADER: \addbibresource{~/Documents/Unison/bib/references.bib}
+# #+LATEX_HEADER: \usepackage{verbatim}
+#+LATEX_HEADER: \usepackage{inconsolata}
+#+LATEX_HEADER: \definecolor{lightgrey}{HTML}{F0F0F0}
+#+LATEX_HEADER: \definecolor{solarizedlightbg}{HTML}{FCF4DC}
+#+LATEX_HEADER: \makeatletter
+# #+LATEX_HEADER: \def\verbatim@font{\scriptsize\ttfamily}
+#+LATEX_HEADER: \makeatother
+#+FILETAGS: :projects:work:
+#+CATEGORY: miRNA
+-----
+
+* miRTarBase R package
+
+
+
+** Create the database file
+
+Using the code in this section we create the =SQLite= database for the package. The workflow is the following: first we have to download the XLS spreadsheet from the miRTarBase web site, which we have to open in Excel and export as tabulator delimited text file. We will then read this file into R in order format it for our requirements (i.e. rename the column names) and we store this file than into a =SQLite= database.
+
+Assuming that the Excel file has been downloaded from http://mirtarbase.mbc.nctu.edu.tw/php/download.php and has been exported as a tabulator delimited txt file to =orig_files/txt=. Next we read this file, rename the columns and export it again as a tab delimited text file (over-writing the original one).
+
+#+NAME: src.read.tables
+#+BEGIN_SRC R :results silent :exports results
+  library( RSQLite )
+  MTI <- read.table( "orig_files/txt/miRTarBase_MTI.txt", sep="\t", as.is=TRUE, header=TRUE, check.names=FALSE )
+  ## re-formating column names.
+  CN <- tolower( colnames( MTI ) )
+  CN <- gsub( CN, pattern="[(|)]", replacement="" )
+  CN <- gsub( CN, pattern=" ", replacement="_", fixed=TRUE )
+  colnames( MTI ) <- CN
+  ## fixing the WeaK thing.
+  MTI[ , "support_type" ] <- gsub( MTI[ , "support_type" ], pattern="WeaK", replacement="Weak", fixed=TRUE )
+  ## exporting the file again.
+  ##write.table( MTI, file="orig_files/txt/miRTarBase_MTI.txt", sep="\t", row.names=FALSE )
+#+END_SRC
+
+Next we create the database for the package. This requires a working installation of =SQLite=.
+
+#+NAME: src.create.tables
+#+BEGIN_SRC R :results silent :exports code
+  con <- dbConnect( dbDriver( "SQLite" ), dbname="inst/extdata/db/mirtarbase.db" )
+  if( dbExistsTable( con, "mirtarbase" ) ){
+      dbRemoveTable( con, "mirtarbase" )
+  }
+  dbWriteTable( con, name="mirtarbase", MTI, row.names=FALSE )
+  dbDisconnect( con )
+#+END_SRC
+
+** TODOs
+
+*** DONE Create the sqlite database file from the tab delimited txt file.
+    CLOSED: [2014-07-28 Mon 13:59]
+    - State "DONE"       from "TODO"       [2014-07-28 Mon 13:59]
+*** TODO Create a class representing an interaction (?).
+
+What would be the benefits from this?
++ Object oriented approach (which would be helpful if not the only function of the package would be to fetch data).
+
+
+*** TODO Create some helper functions to retrieve information from the DB.
+*** TODO Create a txt file with all informations (version, date etc) from the miRTarBase and read it when calling mirtarbase()
+*** TODO Implement the function to get MTIs for a specified gene.
