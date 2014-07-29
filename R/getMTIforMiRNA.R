@@ -9,7 +9,8 @@
 ## filter.gene.species: restrict the results to target genes from the provided species (by default it matches all species in the database).
 ## filter.support.type: restrict results to MTI from provided evidence support types (by default it matches all support types).
 ## cleanup: whether NA rows should be removed from the results. By default the function returns at least one row for each mature miRNA.
-getMTIforMiRNA <- function( x, type="mature_mirna", operator="like", filter.mirna.species=getAvailableSpecies( "mirna" ), filter.gene.species=getAvailableSpecies( "target_gene" ), filter.support.type=getSupportTypes(), cleanup=FALSE ){
+getMtiForMiRNA <- function( x, type="mature_mirna", operator="like", filter.mirna.species=getAvailableSpecies( "mirna" ), filter.gene.species=getAvailableSpecies( "target_gene" ), filter.support.type=getSupportTypes(), cleanup=FALSE ){
+    type <- match.arg( type, c( "mature_mirna", "mirna_id", "mirna_family" ) )
     ## have the mature miRNA IDs...
     if( type=="mature_mirna" ){
         xmat <- x
@@ -35,7 +36,7 @@ getMTIforMiRNA <- function( x, type="mature_mirna", operator="like", filter.mirn
     if( type=="mirna_id" ){
         ## map the mirna_id to the mature miRNA using mirbase.db package.
         cat( "Mapping mirna id(s) to mature miRNA ids.\n" )
-        Mat <- mget( tolower( x ), mirbaseMATURE, ifnotfound=NA )
+        Mat <- mget( tolower( x ), envir=mirbaseMATURE, ifnotfound=NA )
         NAs <- unlist( lapply( Mat, class ) )=="logical"
         if( any( NAs ) ){
             notfound <- names( Mat )[ NAs ]
@@ -54,7 +55,7 @@ getMTIforMiRNA <- function( x, type="mature_mirna", operator="like", filter.mirn
     filter.gene.string = paste0( " and species_target_gene in (", paste( sQuote( filter.gene.species ), collapse="," ), ")" )
     filter.support.string = paste0( " and support_type in (", paste( sQuote( filter.support.type ), collapse = "," ), ")" )
     ## search for the MTIs
-    Res <- sapply( xmat, FUN=dogetMTIforMiRNA, con=con, operator=operator, simplify=FALSE, USE.NAMES=FALSE, filterstring=paste0( filter.mirna.string, filter.gene.string, filter.support.string ) )
+    Res <- sapply( xmat, FUN=dogetMtiForMiRNA, con=con, operator=operator, simplify=FALSE, USE.NAMES=FALSE, filterstring=paste0( filter.mirna.string, filter.gene.string, filter.support.string ) )
     Res <- do.call( what=rbind, Res )
     if( cleanup ){
         Res <- Res[ !is.na( Res$mirna ), ]
@@ -63,7 +64,7 @@ getMTIforMiRNA <- function( x, type="mature_mirna", operator="like", filter.mirn
 }
 
 ## well, that's just the function that does the stuff...
-dogetMTIforMiRNA <- function( x, con, operator="like", filterstring="" ){
+dogetMtiForMiRNA <- function( x, con, operator="like", filterstring="" ){
     operator = match.arg( operator, c( "like", "=") )
     Res <- dbGetQuery( con, paste0( "select * from mirtarbase where mirna ", operator, " ", x, filterstring,  ";" ) )
     if( nrow( Res )==0 ){
@@ -72,4 +73,5 @@ dogetMTIforMiRNA <- function( x, con, operator="like", filterstring="" ){
     Res <- cbind( query=gsub( x, pattern="'", replacement="" ), Res, stringsAsFactors=FALSE )
     return( Res )
 }
+
 

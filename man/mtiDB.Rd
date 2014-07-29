@@ -9,7 +9,7 @@ These functions connect to the database containing the information from miRTarBa
 }
 \usage{
 mtiDB(x, v = TRUE )
-getMtiCon( x )
+getMtiCon( x, v=FALSE )
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

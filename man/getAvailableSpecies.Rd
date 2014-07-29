@@ -25,4 +25,13 @@ getSupportTypes()
 \author{
 Johannes Rainer
 }
+\examples{
+
+## get available species for miRNAs
+getAvailableSpecies( "mirna" )
+
+## get available species for target genes
+getAvailableSpecies( "target_gene" )
+
+}
 \keyword{ data }

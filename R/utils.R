@@ -17,8 +17,8 @@ getSupportTypes <- function( ){
 ## print some information...
 mirtarbase <- function( prefix="" ){
     con <-getMtiCon()
-    ##x <- system.file( "extdata/txt/INFO", package="mirtarbase.db" )
-    x <- "inst/extdata/txt/INFO"
+    x <- system.file( "extdata/txt/INFO", package="mirtarbase.db" )
+    #x <- "inst/extdata/txt/INFO"
     Lines <- readLines( x )
     for( i in 1:length( Lines ) ){
         cat( paste0( prefix, " ", Lines[ i ], "\n" ) )

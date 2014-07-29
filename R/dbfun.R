@@ -2,8 +2,8 @@
 ## v... verbosity
 mtiDB <- function( x, v=TRUE ){
     if( missing( x ) ){
-        #x <- system.file( "extdata/db/mirtarbase.db", package="mirtarbase.db" )
-        x <- "inst/extdata/db/mirtarbase.db"
+        x <- system.file( "extdata/db/mirtarbase.db", package="mirtarbase.db" )
+        #x <- "inst/extdata/db/mirtarbase.db"
     }
     lite <- dbDriver("SQLite")
     con <- dbConnect(lite, dbname = x)

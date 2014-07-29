@@ -30,7 +30,7 @@
 
 * miRTarBase R package
 
-
+This packages provides the miRNA-target gene interactions (MTI) from the miRTarBase.
 
 ** Create the database file
 
@@ -62,8 +62,16 @@ Next we create the database for the package. This requires a working installatio
       dbRemoveTable( con, "mirtarbase" )
   }
   dbWriteTable( con, name="mirtarbase", MTI, row.names=FALSE )
+  dbGetQuery( con, "create index mirna_idx on mirtarbase (mirna);" )
+  dbGetQuery( con, "create index target_gene_idx on mirtarbase (target_gene);" )
+  dbGetQuery( con, "create index target_gene_entrez_idx on mirtarbase (target_gene_entrez_gene_id);" )
   dbDisconnect( con )
 #+END_SRC
+
+** Changelog:
+
++ version 0.1.0 (2014-07-29): it's done: the first /release/. Basic functionality, not Vignette, no S4 objects (yet).
++ version 0.0.1 (2014-07-28): added database.
 
 ** TODOs
 
@@ -76,6 +84,17 @@ What would be the benefits from this?
 + Object oriented approach (which would be helpful if not the only function of the package would be to fetch data).
 
 
-*** TODO Create some helper functions to retrieve information from the DB.
-*** TODO Create a txt file with all informations (version, date etc) from the miRTarBase and read it when calling mirtarbase()
-*** TODO Implement the function to get MTIs for a specified gene.
+*** DONE Create some helper functions to retrieve information from the DB.
+    CLOSED: [2014-07-28 Mon 15:20]
+    - State "DONE"       from "TODO"       [2014-07-28 Mon 15:20]
+*** DONE Create a txt file with all informations (version, date etc) from the miRTarBase and read it when calling mirtarbase()
+    CLOSED: [2014-07-28 Mon 15:20]
+    - State "DONE"       from "TODO"       [2014-07-28 Mon 15:20]
+*** DONE Implement the function to get MTIs for a specified gene.
+    CLOSED: [2014-07-29 Tue 10:52]
+    - State "DONE"       from "TODO"       [2014-07-29 Tue 10:52]
+*** TODO Create a vignette for this package.
+*** TODO Include also the phenomiR database?
+
+This makes only sense, if the phenomiR does provide additional information.
+

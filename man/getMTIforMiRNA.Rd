@@ -1,5 +1,5 @@
-\name{getMTIforMiRNA}
-\alias{getMTIforMiRNA}
+\name{getMtiForMiRNA}
+\alias{getMtiForMiRNA}
 \title{
   Retrieve miRNA-target gene interactions (MTI) for specified miRNA(s)
 }
@@ -8,7 +8,7 @@
   database for one or more miRNAs.
 }
 \usage{
-getMTIforMiRNA( x, type="mature_mirna", operator="like", filter.mirna.species=getAvailableSpecies( "mirna" ), filter.gene.species=getAvailableSpecies( "target_gene" ), filter.support.type=getSupportTypes(), cleanup=FALSE )
+getMtiForMiRNA( x, type="mature_mirna", operator="like", filter.mirna.species=getAvailableSpecies( "mirna" ), filter.gene.species=getAvailableSpecies( "target_gene" ), filter.support.type=getSupportTypes(), cleanup=FALSE )
 
 }
 %- maybe also 'usage' for other objects documented here.
@@ -50,13 +50,40 @@ getMTIforMiRNA( x, type="mature_mirna", operator="like", filter.mirna.species=ge
   miRNA family IDs (e.g. mir-29; \code{type="mirna_family"}). In these
   cases, the function internally retrieves all mature miRNAs for the
   submitted IDs from the mirbase database.
+  The default operator \dQuote{like} allows also to search for MTIs
+  using a pattern (\code{\%} matching zero, one or multiple characters,
+  \code{_} matching one character). This works however only for
+  \code{type="mature_mirna"}!
+
 }
 \value{
   A data.frame with the results. The data.frame contains a row with NAs
   is no MTI is available for a miRNA (unless \code{cleanup=TRUE}).
 }
+\seealso{
+  \code{\link{getMtiForGene}}
+}
 \author{
 Johannes Rainer
+}
+\examples{
+
+## get MTIs for the (mature miRNA) hsa-mir-29c-5p and restrict to human target genes.
+MTIs <- getMtiForMiRNA( "hsa-mir-29c-5p", filter.gene.species="Homo sapiens" )
+MTIs
+
+## get MTIs for the (pre) miRNA hsa-mir-29b-2 (i.e. for both 3p and 5p sequences)
+MTIs <- getMtiForMiRNA( "hsa-mir-29b-2", type="mirna_id", filter.gene.species="Homo sapiens" )
+table( MTIs$mirna )
+
+## get MTIs for all miRNAs of the miRNA family mir-29 (we're also restricting to human miRNAs)
+MTIs <- getMtiForMiRNA( "mir-29", type="mirna_family", filter.gene.species="Homo sapiens", filter.mirna.species="Homo sapiens" )
+table( MTIs$mirna )
+
+## get MTIs for all miRNAs matchin the supplied pattern
+MTIs <- getMtiForMiRNA( "hsa-mir-29\%", type="mature_mirna", filter.gene.species="Homo sapiens", filter.mirna.species="Homo sapiens" )
+table( MTIs$mirna )
+
 }
 \keyword{ data }
 

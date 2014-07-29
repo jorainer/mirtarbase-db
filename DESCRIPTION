@@ -1,12 +1,11 @@
 Package: mirtarbase.db
 Type: Package
 Title: miRTarBase miRNA-target interaction database
-Version: 0.0.1
-Date: 2014-07-28
+Version: 0.1.0
+Date: 2014-07-29
 Author: Johannes Rainer
 Maintainer: Johannes Rainer <johannes.rainer@eurac.edu>
-Imports: RSQLite, mirbase.db
-Depends: RSQLite, mirbase.db
+Imports: mirbase.db, RSQLite, AnnotationDbi
 Description: This package provides the validated miRNA-target interactions from the miRTarBase database.
 License: LGPL
 
