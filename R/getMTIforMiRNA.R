@@ -8,8 +8,9 @@
 ## filter.mirna.species: restrict the results to miRNAs from the provided species (by default it matches all species in the database).
 ## filter.gene.species: restrict the results to target genes from the provided species (by default it matches all species in the database).
 ## filter.support.type: restrict results to MTI from provided evidence support types (by default it matches all support types).
-## cleanup: whether NA rows should be removed from the results. By default the function returns at least one row for each mature miRNA.
-getMtiForMiRNA <- function( x, type="mature_mirna", operator="like", filter.mirna.species=getAvailableSpecies( "mirna" ), filter.gene.species=getAvailableSpecies( "target_gene" ), filter.support.type=getSupportTypes(), cleanup=FALSE ){
+## return.data.frame: returns a data.frame (like in the old version) instead of a list of MTIs.
+## DEPRECATED: cleanup: whether NA rows should be removed from the results. By default the function returns at least one row for each mature miRNA.
+getMtiForMiRNA <- function( x, type="mature_mirna", operator="like", filter.mirna.species=getAvailableSpecies( "mirna" ), filter.gene.species=getAvailableSpecies( "target_gene" ), filter.support.type=getSupportTypes(), return.data.frame=FALSE ){
     type <- match.arg( type, c( "mature_mirna", "mirna_id", "mirna_family" ) )
     ## have the mature miRNA IDs...
     if( type=="mature_mirna" ){
@@ -54,12 +55,16 @@ getMtiForMiRNA <- function( x, type="mature_mirna", operator="like", filter.mirn
     filter.mirna.string = paste0( " and species_mirna in (", paste( sQuote( filter.mirna.species ), collapse="," ), ")" )
     filter.gene.string = paste0( " and species_target_gene in (", paste( sQuote( filter.gene.species ), collapse="," ), ")" )
     filter.support.string = paste0( " and support_type in (", paste( sQuote( filter.support.type ), collapse = "," ), ")" )
-    ## search for the MTIs
-    Res <- sapply( xmat, FUN=dogetMtiForMiRNA, con=con, operator=operator, simplify=FALSE, USE.NAMES=FALSE, filterstring=paste0( filter.mirna.string, filter.gene.string, filter.support.string ) )
-    Res <- do.call( what=rbind, Res )
-    if( cleanup ){
-        Res <- Res[ !is.na( Res$mirna ), ]
+
+    ## return the result as a data.frame:
+    if( return.data.frame ){
+        ## search for the MTIs
+        Res <- sapply( xmat, FUN=dogetMtiForMiRNA, con=con, operator=operator, simplify=FALSE, USE.NAMES=FALSE, filterstring=paste0( filter.mirna.string, filter.gene.string, filter.support.string ) )
+        Res <- do.call( what=rbind, Res )
+        return( Res )
     }
+    ## that's now what we want: a list of MTIs (with Reports inside).
+    Res <- unlist( sapply( xmat, FUN=dogetMtiListForMiRNA, con=con, operator=operator, simplify=FALSE, USE.NAMES=FALSE, filterstring=paste0( filter.mirna.string, filter.gene.string, filter.support.string ) ) )
     return( Res )
 }
 
@@ -73,5 +78,14 @@ dogetMtiForMiRNA <- function( x, con, operator="like", filterstring="" ){
     Res <- cbind( query=gsub( x, pattern="'", replacement="" ), Res, stringsAsFactors=FALSE )
     return( Res )
 }
+
+## this function performs the query, but returns a list of MTI objects!
+dogetMtiListForMiRNA <- function( x, con, operator="like", filterstring="" ){
+    TheDataFrame <- dogetMtiForMiRNA( x=x, con=con, operator=operator, filterstring=filterstring )
+    TheDataFrame <- split( TheDataFrame, f=TheDataFrame$mirtarbase_id ) ## this way we loose any NA columns!
+    MTIs <- lapply( TheDataFrame, data.frame2mtiNreport )
+    return( MTIs )
+}
+
 
 

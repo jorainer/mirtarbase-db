@@ -6,7 +6,7 @@
 }
 
 .onAttach <- function( libname, pkgname ){
-    packageStartupMessage( paste( "Note: global option \"useFancyQuotes\" was set to FALSE; will restore on unLoad.\n" ) )
+    packageStartupMessage( paste( "Note: global option \"useFancyQuotes\" was set to FALSE.\n" ) )
 }
 
 .onUnload <- function( libpath ){

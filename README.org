@@ -68,6 +68,35 @@ Next we create the database for the package. This requires a working installatio
   dbDisconnect( con )
 #+END_SRC
 
+** Development
+
+At present (<2014-07-28>), the miRTarBase can only be exported as a XLS spread sheet. This file contains one line per MTI and publication:
+
++ MTI MIRT000140: online: 2 references, XLS sheet: one (one reference missing in XLS sheet).
++ MTI MIRT001206: online: 8 references, XLS sheet: 3 rows (several rows missing).
++ MTI MIRT003413: online: 4 references, XLS sheet: 2 rows (2 rows missing):
+  - PMID: 18328430: experiments: Luciferase reporter assay//Microarray//Western blot; evidence: Functional MTI. Online: also Other listed as experiment.
+  - PMID: 19422085: experiments: Luciferase reporter assay//Microarray//qRT-PCR//Western blot; evidence: Functional MTI. Online: also Other listed as experiment.
+
+Thus, an MTI between the same miRNA and target gene (for the same species!) is stored in several rows in the XLS sheet. Each row seems however be related to one publication, and the field /experiments/ seems to list all experiments performed in that publication.
+
+One question is whether the XLS sheet should be stored as-is to the database, or whether a clean relational database should be created. The benefit from the latter approach would be to allow more specific queries, e.g. all MTIs based on a certain support type.
+
+*** The MTI class
+
+The MTI class represents a miRNA target gene interaction. There should only be one MTI for a miRNA target gene combination, with multiple evidences and eventually multiple publications. The unique identifier for a MTI is the identifier used in the miRTarBase (e.g. /MIRT001206/).
+
+class MTI
+       L_ class Report
+                 L_ experiments: lists all experiments that have been performed.
+                 L_ pmid: returns the (PMID) of the report.
+                 L_ supportedBy: list support type(s) (evidences).
+       L_ reports: returns the Report(s) of the MTI.
+       L_ experiments: returns all experiments (of the Report(s)).
+       L_ pmids: returns the PMIDs of the Report(s).
+       L_ supportedBy
+
+
 ** Changelog:
 
 + version 0.1.0 (2014-07-29): it's done: the first /release/. Basic functionality, not Vignette, no S4 objects (yet).
@@ -78,11 +107,14 @@ Next we create the database for the package. This requires a working installatio
 *** DONE Create the sqlite database file from the tab delimited txt file.
     CLOSED: [2014-07-28 Mon 13:59]
     - State "DONE"       from "TODO"       [2014-07-28 Mon 13:59]
-*** TODO Create a class representing an interaction (?).
+*** DONE Create a class representing an interaction (?).
+    CLOSED: [2014-07-31 Thu 11:00]
+    - State "DONE"       from "TODO"       [2014-07-31 Thu 11:00]
 
 What would be the benefits from this?
 + Object oriented approach (which would be helpful if not the only function of the package would be to fetch data).
 
+Did that. That's the =MTI= object.
 
 *** DONE Create some helper functions to retrieve information from the DB.
     CLOSED: [2014-07-28 Mon 15:20]
@@ -94,7 +126,56 @@ What would be the benefits from this?
     CLOSED: [2014-07-29 Tue 10:52]
     - State "DONE"       from "TODO"       [2014-07-29 Tue 10:52]
 *** TODO Create a vignette for this package.
-*** TODO Include also the phenomiR database?
+*** CANCELED Include also the phenomiR database?
+    CLOSED: [2014-07-31 Thu 10:59]
+    - State "CANCELED"   from "DONE"       [2014-07-31 Thu 10:59] \\
+      miRTarBase contains also other databases and will (hopefully) be updated regularily.
+    - State "DONE"       from "TODO"       [2014-07-31 Thu 10:59]
 
 This makes only sense, if the phenomiR does provide additional information.
+Will not do that, since the guys from miRTarBase claim that they provide the most data and include also other databases.
 
+*** TODO implement a central =getMti= function.
+
+This function should take either one or more gene or miRNA IDs as input and return a list of MTI objects.
+Split the data.frame by miRTarBase IDs, make one MTI for each data.frame and nrow Report classes.
+
+*** DONE Implement functions to create MTI objects from a data.frame (and /vice versa/). [4/4]
+    CLOSED: [2014-07-31 Thu 10:58]
+    - State "DONE"       from "TODO"       [2014-07-31 Thu 10:58]
+
+These should be put into /convertfunctions.R/.
+
++ [X] data.frame2report
++ [X] report2data.frame
++ [X] data.frame2mti
++ [X] mti2data.frame
+
+*** DONE Implement all methods for the =Report= class [4/4].
+    CLOSED: [2014-07-31 Thu 11:46]
+    - State "DONE"       from "TODO"       [2014-07-31 Thu 11:46]
+
+    - [X] show
+    - [X] experiments
+    - [X] supportedBy
+    - [X] pmid
+
+*** DONE Implement all methods for the =MTI= class [12/12].
+    CLOSED: [2014-07-31 Thu 11:46]
+    - State "DONE"       from "TODO"       [2014-07-31 Thu 11:46]
+
+    - [X] show
+    - [X] id
+    - [X] reports
+    - [X] experiments
+    - [X] supportedBy
+    - [X] pmid
+    - [X] matureMirna
+    - [X] mirnaSpecies
+    - [X] targetGene
+    - [X] targetGeneSpecies
+    - [X] targetGeneEntrezid
+    - [X] countReports
+*** TODO Implement a function that retrieves additional miRNA annotations for a MTI.
+
+The idea is to get the pre-miRNA or miRNA family for a given mature miRNA.

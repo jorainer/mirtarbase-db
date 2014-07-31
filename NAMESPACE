@@ -6,6 +6,20 @@ export( "getSupportTypes" )
 export( "getMtiForMiRNA" )
 export( "getMtiForGene" )
 export( "mirtarbase" )
+export( "Report" )
+export( "MTI" )
+## conversion functions (convertfunctions.R)
+export( "data.frame2report" )
+export( "report2data.frame" )
+export( "data.frame2mti" )
+export( "mti2data.frame" )
+## classes:
+exportClasses( Report, MTI )
+## methods:
+exportMethods( show, initialize, experiments, supportedBy, pmid, id, reports, experiments, matureMirna, mirnaSpecies, targetGene, targetGeneSpecies, targetGeneEntrezid, reportCount )
+
+## imports
+import( "methods" )
 import( "RSQLite" )
 import( "mirbase.db" )
 import( "AnnotationDbi" )
