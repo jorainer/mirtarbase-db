@@ -1,0 +1,168 @@
+%
+% NOTE -- ONLY EDIT THE .Rnw FILE!!!  The .tex file is
+% likely to be overwritten.
+%
+%\VignetteIndexEntry{mirtarbase.db overview and usage}
+%\VignetteDepends{}
+%\VignetteKeywords{Documentation}
+%\VignettePackage{mirtarbase.db}
+\documentclass[12pt]{article}
+
+\usepackage{times}
+\usepackage{hyperref}
+
+
+\textwidth=6.2in
+\textheight=8.5in
+%\parskip=.3cm
+\oddsidemargin=.1in
+\evensidemargin=.1in
+\headheight=-.3in
+
+\newcommand{\scscst}{\scriptscriptstyle}
+\newcommand{\scst}{\scriptstyle}
+
+\bibliographystyle{plainnat}
+
+\begin{document}
+
+\title{}
+\maketitle
+
+\section*{The mirtarbase database for miRNA target gene interactions}
+
+
+This package provides the basic content from the manually curated miRTarBase database for miRNA target gene interactions. At present the database can only be downloaded as a Microsoft Excel file which has been processed to generate the SQLite database from this package. Thus, this package might not contain (and actually does not contain) the same information than the online resource.
+
+
+\subsection*{Basic usage}
+
+First we load the package and list the version, creation data and other information from the database.
+
+\begin{scriptsize}
+<<>>=
+
+library( mirtarbase.db )
+mirtarbase()
+
+@
+\end{scriptsize}
+
+Next we fetch all miRNA target interactions for the gene BCL2. By default the function looks up genes and miRNAs in a case insensitive way.
+
+\begin{scriptsize}
+<<>>=
+
+BCL2 <- getMti( "BCL2" )
+length( BCL2 )
+table( unlist( lapply( BCL2, targetGeneSpecies ) ) )
+
+BCL2 <- getMti( "BCL2", filter.gene.species="Homo sapiens" )
+length( BCL2 )
+
+@
+\end{scriptsize}
+
+Each miRNA target gene interaction is represented as a \texttt{MTI} object which contains the evidence of the interaction in \texttt{Report} objects. Each \texttt{Report} object provides the PubMed ID of the publication in which the interaction was described along with all experiments that have been performed and the support type (i.e. the evidence level).
+
+Below we sort the list of MTI objects by the number of reports and concentrate on the interaction with the most reports.
+
+\begin{scriptsize}
+<<>>=
+
+idx <- order( unlist( lapply( BCL2, reportCount ) ), decreasing = TRUE )
+MTI <- BCL2[ idx ][[ 1 ]]
+
+pmid( MTI )
+
+MTI
+
+@
+\end{scriptsize}
+
+We can retrieve some additional information for the mature miRNA.
+
+\begin{scriptsize}
+<<>>=
+
+matureMirna( MTI )
+
+## the pre-miRNA that encode the mature miRNA
+mirna( MTI )
+
+## the miRNA family
+mirnaFamily( MTI )
+
+## the sequence
+matureSequence( MTI )
+
+@
+\end{scriptsize}
+
+We can transform any MTI object (along with the associated Report objects) into a \texttt{data.frame}. Note that by default the \texttt{data.frame} will contain as many rows as there are reports for the MTI.
+
+\begin{scriptsize}
+<<>>=
+
+mti2data.frame( MTI )
+
+@
+\end{scriptsize}
+
+Reports can however also be combined into a single row for the MTI, thus resulting in a \texttt{data.frame} with a single row for a MTI.
+
+\begin{scriptsize}
+<<>>=
+
+DF <- mti2data.frame( MTI, collapse.reports=";" )
+DF[ , c( "mirna", "target_gene", "support_type", "report_count" ) ]
+
+@
+\end{scriptsize}
+
+Thus we can generate a \texttt{data.frame} with all MTIs for BCL2, each row representing one MTI.
+
+\begin{scriptsize}
+<<>>=
+
+DF <- do.call( "rbind", lapply( BCL2, mti2data.frame, collapse.reports=";" ) )
+DF[ idx, c( "mirna", "target_gene", "report_count" ) ]
+
+@
+\end{scriptsize}
+
+Alternatively we can also retrieve all MTIs for a specific miRNA (e.g. pre-miRNA hsa-miR-16-1). Note that it is possible to search for miRNAs using the mature miRNA ID, the miRNA name or even the miRNA family. In the latter two cases the IDs will be mapped to mature miRNA IDs using the \texttt{mirbase.db} Bioconductor package.
+
+\begin{scriptsize}
+<<>>=
+
+Mir <- getMti( "hsa-miR-16-1", type="mirna_id", filter.mirna.species = "Homo sapiens" )
+length( Mir )
+
+table( unlist( lapply( Mir, matureMirna ) ) )
+
+@
+\end{scriptsize}
+
+We can also use some utility functions from this package to retrieve annotations for mature miRNAs from the \texttt{mirbase.db} package.
+
+\begin{scriptsize}
+<<>>=
+
+Annot <- getMirbaseForMature( "hsa-miR-16-5p" )
+colnames( Annot )
+
+@
+\end{scriptsize}
+
+\section*{Session Information}
+
+The version number of R and packages loaded for generating the vignette were:
+
+\begin{verbatim}
+<<echo=FALSE,results=tex>>=
+sessionInfo()
+@
+\end{verbatim}
+
+\end{document}

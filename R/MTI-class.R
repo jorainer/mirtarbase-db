@@ -125,6 +125,21 @@ if( !isGeneric( "id" ) )
 if( !isGeneric( "reportCount" ) )
     setGeneric( "reportCount" , function( object, ... )
                standardGeneric( "reportCount" ))
+if( !isGeneric( "mirna" ) )
+    setGeneric( "mirna" , function( object, ... )
+               standardGeneric( "mirna" ))
+if( !isGeneric( "matureAccession" ) )
+    setGeneric( "matureAccession" , function( object )
+               standardGeneric( "matureAccession" ))
+if( !isGeneric( "matureSequence" ) )
+    setGeneric( "matureSequence" , function( object, ... )
+               standardGeneric( "matureSequence" ))
+if( !isGeneric( "mirnaAccession" ) )
+    setGeneric( "mirnaAccession" , function( object )
+               standardGeneric( "mirnaAccession" ))
+if( !isGeneric( "mirnaFamily" ) )
+    setGeneric( "mirnaFamily" , function( object, ... )
+               standardGeneric( "mirnaFamily" ))
 #if( !isGeneric( "" ) )
 #    setGeneric( "" , function( object, ... )
 #               standardGeneric( "" ))
@@ -235,36 +250,30 @@ setMethod( "reportCount", "MTI",
               return( length( reps ) )
           })
 
-## ###############################
-## # new
-## if( !isGeneric("residuals") )
-## 	setGeneric("residuals", function( object,...)
-## 	standardGeneric("residuals"))
+## get the miRNA ID for the mature miRNA of a MTI.
+setMethod( "mirna", "MTI",
+          function( object, ... ){
+              return( getMirbaseForMature( matureMirna( object ) )[ , "mirna_id" ] )
+          })
+setMethod( "mirnaFamily", "MTI",
+          function( object, ... ){
+              return( unique( getMirbaseForMature( matureMirna( object ), tables=c( "mirna", "mirna_prefam" ) )[ , "prefam_id" ] ) )
+          })
+setMethod( "mirnaAccession", "MTI",
+          function( object ){
+              return( getMirbaseForMature( matureMirna( object ) )[ , "mirna_acc" ] )
+          })
+setMethod( "matureAccession", "MTI",
+          function( object ){
+              return( unique( getMirbaseForMature( matureMirna( object ) )[ , "mature_acc" ] ) )
+          })
+setMethod( "matureSequence", "MTI",
+          function( object, ... ){
+              tmp <- getMirbaseForMature( matureMirna( object ) )
+              matseq <- apply( tmp, MARGIN=1, function( z ){
+                  return( substr( z[ "sequence" ], start=as.numeric( z[ "mature_from" ] ), stop=as.numeric( z[ "mature_to" ] )) )
+              } )
+              return( unique( matseq ) )
+          })
 
 
-## ##################################################################################################
-## setMethod("residuals","ResExpressionSet",
-##           function( object, ... ){
-##               return( object@residuals )
-##           }
-##           )
-
-## newResExpressionSet <- function( x ){
-##     if( class( x )=="ExpressionSet" ){
-##         x <- as( x, "ResExpressionSet" )
-##         Res <- matrix( ncol=ncol( exprs( x ) ), nrow=nrow( exprs( x ) ) )
-##         colnames( Res ) <- colnames( exprs( x ) )
-##         rownames( Res ) <- rownames( exprs( x ) )
-##         x@residuals <- Res
-##         return( x )
-##     }else{
-##         stop( "Not yet implemented" )
-##     }
-## }
-
-## setMethod("show","MiscFeature", function(object){
-##     cat("MiscFeature:\n")
-##     cat("type:",object@type,"\n")
-##     cat("description:", object@mfdescription, "\n")
-##     callNextMethod(object)
-## })

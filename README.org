@@ -213,6 +213,8 @@ class MTI
 
 ** Changelog:
 
++ version 0.2.1 (2014-08-01);
+  - Added some functions to retrieve annotations from the mirbase package.
 + version 0.2.0 (2014-08-01):
   - Fixed some series problems in the XLS sheet from the miRTarBase. Missed some MTIs in the previous database versions.
   - Removed functions =getMtiForGene= and =getMtiForMiRNA= and replaced both with =getMti=.
@@ -295,7 +297,9 @@ These should be put into /convertfunctions.R/.
     - [X] targetGeneSpecies
     - [X] targetGeneEntrezid
     - [X] countReports
-*** TODO Implement a function that retrieves additional miRNA annotations for a MTI.
+*** DONE Implement a function that retrieves additional miRNA annotations for a MTI.
+    CLOSED: [2014-08-01 Fri 15:09]
+    - State "DONE"       from "TODO"       [2014-08-01 Fri 15:09]
 
 The idea is to get the pre-miRNA or miRNA family for a given mature miRNA.
 This should then also be exported if MTIs are exported as a =data.frame=.

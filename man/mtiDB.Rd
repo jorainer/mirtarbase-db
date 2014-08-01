@@ -1,15 +1,18 @@
 \name{mtiDB}
 \alias{mtiDB}
 \alias{getMtiCon}
+\alias{getMirbaseCon}
 \title{
-  Connect to the miRTarBase (MTI) database.
+  Connect to the miRTarBase (MTI) or mirbase database.
 }
 \description{
-These functions connect to the database containing the information from miRTarBase.
+These functions connect to the database containing the information from
+miRTarBase or to the mirbase database (provided by mirbase.db package).
 }
 \usage{
 mtiDB(x, v = TRUE )
 getMtiCon( x, v=FALSE )
+getMirbaseCon()
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -21,9 +24,9 @@ getMtiCon( x, v=FALSE )
   }
 }
 \details{
-This function creates a new database connection each time it is
+\code{mtiDB} creates a new database connection each time it is
 called. Thus, the function \code{getMtiCon}, that only creates a
-new connection if none is already available, should be used instead.
+new connection if none is available, should be used instead.
 }
 \value{
   A connection object to the database.

@@ -14,10 +14,16 @@ export( "data.frame2report" )
 export( "report2data.frame" )
 export( "data.frame2mti" )
 export( "mti2data.frame" )
+## mirbase stuff
+export( "getMirbaseCon" )
+export( "getMirbaseForMature" )
+export( "getMirbaseFamForMature" )
+export( "mgetMirbaseForMature" )
+export( "mgetMirbaseFamForMature" )
 ## classes:
 exportClasses( Report, MTI )
 ## methods:
-exportMethods( show, experiments, supportedBy, pmid, id, reports, experiments, matureMirna, mirnaSpecies, targetGene, targetGeneSpecies, targetGeneEntrezid, reportCount )
+exportMethods( show, experiments, supportedBy, pmid, id, reports, experiments, matureMirna, mirnaSpecies, targetGene, targetGeneSpecies, targetGeneEntrezid, reportCount, mirna, mirnaAccession, mirnaFamily, matureAccession, matureSequence )
 
 ## imports
 import( "RSQLite" )

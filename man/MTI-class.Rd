@@ -24,6 +24,16 @@
 \alias{reportCount}
 \alias{initialize}
 \alias{initialize,MTI-method}
+\alias{mirna}
+\alias{mirna,MTI-method}
+\alias{mirnaAccession}
+\alias{mirnaAccession,MTI-method}
+\alias{mirnaFamily}
+\alias{mirnaFamily,MTI-method}
+\alias{matureAccession}
+\alias{matureAccession,MTI-method}
+\alias{matureSequence}
+\alias{matureSequence,MTI-method}
 \title{Class \dQuote{MTI}, miRNA target gene interaction }
 \description{
   The class \dQuote{MTI} describes a miRNA target gene interaction as
@@ -50,27 +60,57 @@ using the \code{ \link{newMTI} } function (the preferred way).
 }
 \section{Methods}{
   \describe{
-    \item{\code{show( object )}}{Print the content of the MTI class.}
-    \item{\code{id( object, ... )}}{Returns the identifier.}
-    \item{\code{matureMirna( object, ... )}}{Returns the name of the mature miRNA.}
-    \item{\code{mirnaSpecies( object, ... )}}{Returns the species of the
-    miRNA.}
-    \item{\code{targetGene( object, ... )}}{Returns the official symbol
-      of the target gene.}
-    \item{\code{targetGeneEntrezid( object, ... )}}{Returns the NCBI
-      Entrezgene identifier of the target gene.}
-    \item{\code{targetGeneSpecies( object, ... )}}{Returns the species
-      of the target gene.}
-    \item{\code{reports( x, ... )}}{Returns the list of
-      \code{\linkS4class{Report}} objects.}
-    \item{\code{pmid( object, ... )}}{Returns the PubMed identifier(s) of the
-      publications providing evidence of the interaction.}
+
     \item{\code{experiments( object, ... )}}{Returns the experiments
       that were performed to proof the interaction.}
-    \item{\code{supportedBy( object, ... )}}{Returns the support type
-      of the evidence/experiments.}
+
+    \item{\code{id( object, ... )}}{Returns the identifier.}
+
+    \item{\code{matureMirna( object, ... )}}{Returns the name of the mature miRNA.}
+
+    \item{\code{mirnaSpecies( object, ... )}}{Returns the species of the
+    miRNA.}
+
+    \item{\code{pmid( object, ... )}}{Returns the PubMed identifier(s) of the
+      publications providing evidence of the interaction.}
+
     \item{\code{reportCount( object, ... )}}{Returns the number of
       publications/reports providing evidence for the interaction.}
+
+    \item{\code{reports( x, ... )}}{Returns the list of
+      \code{\linkS4class{Report}} objects.}
+
+    \item{\code{show( object )}}{Print the content of the MTI class.}
+
+    \item{\code{supportedBy( object, ... )}}{Returns the support type
+      of the evidence/experiments.}
+
+    \item{\code{targetGene( object, ... )}}{Returns the official symbol
+      of the target gene.}
+
+    \item{\code{targetGeneEntrezid( object, ... )}}{Returns the NCBI
+      Entrezgene identifier of the target gene.}
+
+    \item{\code{targetGeneSpecies( object, ... )}}{Returns the species
+      of the target gene.}
+
+
+    Retrieve annotations (from the mirtarbase package) for the mature
+    miRNA.
+
+    \item{\code{matureAccession( object, ... )}}{Returns the identifier
+      (accession) of the mature miRNA from the mirbase.}
+
+    \item{\code{matureSequence( object, ... )}}{Returns the sequence of
+      the mature miRNA.}
+
+    \item{\code{mirna( object, ... )}}{Returns the pre-miRNA name
+      (i.e. the miRNA id) for the mature miRNA from the mirbase.}
+
+    \item{\code{mirnaAccession( object, ... )}}{Returns the pre-miRNA accession for the mature miRNA from the mirbase.}
+
+    \item{\code{mirnaFamily( object, ... )}}{Returns the miRNA family name for the mature miRNA from the mirbase.}
+
   }
 }
 %\references{ ~put references to the literature/web site here ~ }
@@ -79,7 +119,7 @@ using the \code{ \link{newMTI} } function (the preferred way).
   Instead of directly accessing the slots of the class, the getter methods listed above should be used instead.
 }
 \seealso{
-	\code{\linkS4class{Report}}, \code{\link{getMti}}
+	\code{\linkS4class{Report}}, \code{\link{getMti}}, \code{getMirbaseForMature}
 }
 \examples{
 
@@ -92,6 +132,22 @@ pmid( MTI )
 matureMirna( MTI )
 
 reports( MTI )
+
+## get some annotation information for the mature miRNA of the MTI.
+## pre-miRNA name
+mirna( MTI )
+
+## pre-miRNA accession
+mirnaAccession( MTI )
+
+## miRNA family name
+mirnaFamily( MTI )
+
+## mature miRNA accession
+matureAccession( MTI )
+
+## the mature miRNA's sequence
+matureSequence( MTI )
 
 }
 \keyword{classes}

@@ -1,7 +1,7 @@
 Package: mirtarbase.db
 Type: Package
 Title: miRTarBase miRNA-target interaction database
-Version: 0.2.0
+Version: 0.2.1
 Date: 2014-08-01
 Author: Johannes Rainer
 Maintainer: Johannes Rainer <johannes.rainer@eurac.edu>

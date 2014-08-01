@@ -65,5 +65,10 @@ do.call( "rbind", lapply( MTIs, mti2data.frame ) )
 ## so each line represents a unique MTI
 do.call( "rbind", lapply( MTIs, mti2data.frame, collapse.reports=", " ) )
 
+## some annotation stuff...
+## retrieving information from mirbase
+getMirbaseForMature( "hsa-miR-223-3p" )
+
+
 }
 \keyword{ package }
