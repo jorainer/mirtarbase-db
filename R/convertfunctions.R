@@ -64,7 +64,7 @@ mti2data.frame <- function( x, colname.id="mirtarbase_id", colname.mirna="mirna"
     colnames( mti.df ) <- c( colname.id, colname.mirna, colname.mirna.species, colname.target, colname.target.entrezid, colname.target.species )
     ## replicate rows in mti.df to match nrow reps.df
     mti.df <- mti.df[ rep( 1, each=nrow( reps.df ) ), ]
-    mti.df <- cbind( mti.df, reps.df, stringsAsFactors=stringsAsFactors )
+    mti.df <- cbind( mti.df, report_count=reportCount( x ), reps.df, stringsAsFactors=stringsAsFactors )
     return( mti.df )
 }
 
@@ -73,7 +73,7 @@ mti2data.frame <- function( x, colname.id="mirtarbase_id", colname.mirna="mirna"
 ### internal functions!
 row2report <- function( x, name.pmid="references_pmid", name.support="support_type", name.experiments="experiments", split="//" ){
     ## here we do not check again for available data etc.
-    Rp <- Report( pmid=as.numeric( x[ name.pmid ] ),
+    Rp <- newReport( pmid=as.numeric( x[ name.pmid ] ),
                  support_type=x[ name.support ],
                  experiments=unique( unlist( strsplit( x[ name.experiments ], split=split ) ) )
                  )
@@ -81,7 +81,7 @@ row2report <- function( x, name.pmid="references_pmid", name.support="support_ty
 }
 row2mti <- function( x, name.id="mirtarbase_id", name.mirna="mirna", name.mirna.species="species_mirna", name.target="target_gene", name.target.entrezid="target_gene_entrez_gene_id", name.target.species="species_target_gene" ){
     ## here we do not check again for available data etc.
-    mti <- MTI(
+    mti <- newMTI(
         id=x[ name.id ],
         mature_mirna=x[ name.mirna ],
         species_mirna=x[ name.mirna.species ],

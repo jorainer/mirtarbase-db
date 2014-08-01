@@ -13,6 +13,18 @@ getSupportTypes <- function( ){
     return( Res[ ,1 ] )
 }
 
+getAvailableExperiments <- function( split="//" ){
+    con <- getMtiCon( v=FALSE )
+    Res <- dbGetQuery( con, paste0( "select distinct experiments from mirtarbase;" ) )
+    Exps <- unique( unlist( strsplit( Res[ , 1 ], split=split ) ) )
+    return( Exps )
+}
+
+getPmids <- function(  ){
+    con <- getMtiCon( v=FALSE )
+    return( dbGetQuery( con, paste0( "select distinct references_pmid from mirtarbase;" ) )[ , 1 ] )
+}
+
 
 ## print some information...
 mirtarbase <- function( prefix="" ){

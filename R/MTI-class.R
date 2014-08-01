@@ -1,7 +1,28 @@
-#####
+
 #################
 ##     CLASSES
 ##
+## A report (i.e. publication) that reported the MTI.
+setClass( "Report",
+         representation( pmid="numeric",
+                        experiments="character",
+                        support_type="character"
+                        ),
+         prototype=list( pmid=0,
+             experiments="",
+             support_type=""
+                        )
+         )
+newReport <- function( pmid=0, support_type="", experiments="" ){
+    if( is.na( pmid ) ){
+        return( NA )
+    }
+    rep <- new( "Report",
+               pmid=pmid,
+               support_type=support_type,
+               experiments=experiments )
+    return( rep )
+}
 ## the main MTI class representing a miRNA target gene interaction.
 setClass( "MTI",
          representation(id = "character",
@@ -19,20 +40,27 @@ setClass( "MTI",
              target_gene="",
              target_gene_entrezid=0,
              species_target_gene="",
-             report=list( Report() ))
+             report=list( newReport() ))
          )
 
-## A report (i.e. publication) that reported the MTI.
-setClass( "Report",
-         representation( pmid="numeric",
-                        experiments="character",
-                        support_type="character"
-                        ),
-         prototype=list( pmid=0,
-             experiments="",
-             support_type=""
-                        )
-         )
+## constructors.
+newMTI <- function( id="", mature_mirna="", species_mirna="", query="", target_gene="", target_gene_entrezid=0, species_target_gene="", report=list( ) ){
+    ## a MTI has to have an ID!
+    if( is.na( id ) ){
+        return( NA )
+    }
+    mti <- new( "MTI",
+               id=id,
+               mature_mirna=mature_mirna,
+               species_mirna=species_mirna,
+               query=query,
+               target_gene=target_gene,
+               target_gene_entrezid=target_gene_entrezid,
+               species_target_gene=species_target_gene,
+               report=report
+               )
+    return( mti )
+}
 
 
 #################
@@ -60,34 +88,6 @@ setMethod( "initialize", "MTI", function( .Object,... ){
     callNextMethod( .Object, ... )
 })
 
-## constructors.
-MTI <- function( id="", mature_mirna="", species_mirna="", query="", target_gene="", target_gene_entrezid=0, species_target_gene="", report=list( ) ){
-    ## a MTI has to have an ID!
-    if( is.na( id ) ){
-        return( NA )
-    }
-    mti <- new( "MTI",
-               id=id,
-               mature_mirna=mature_mirna,
-               species_mirna=species_mirna,
-               query=query,
-               target_gene=target_gene,
-               target_gene_entrezid=target_gene_entrezid,
-               species_target_gene=species_target_gene,
-               report=report
-               )
-    return( mti )
-}
-Report <- function( pmid=0, support_type="", experiments="" ){
-    if( is.na( pmid ) ){
-        return( NA )
-    }
-    rep <- new( "Report",
-               pmid=pmid,
-               support_type=support_type,
-               experiments=experiments )
-    return( rep )
-}
 
 
 ##### Generic method definitions:
@@ -176,7 +176,7 @@ setMethod( "show", "MTI", function( object ){
 setMethod( "reports", "MTI",
           function( x, ... ){
               if( length( x@report )==0 ){
-                  return( list( Report() ) )
+                  return( list( newReport() ) )
               }
               return( x@report )
           }

@@ -45,7 +45,7 @@ split="//", stringsAsFactors=FALSE, row.names=NULL )
   A data.frame or a list of Report objects.
 }
 \seealso{
-  \code{\link{data.frame2mti}}, \code{\link{mti2data.frame}}
+  \code{\link{data.frame2mti}}, \code{\link{mti2data.frame}}, \code{\linkS4class{Report}}
 }
 \author{
 Johannes Rainer

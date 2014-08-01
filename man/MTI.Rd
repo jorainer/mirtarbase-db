@@ -1,13 +1,13 @@
-\name{MTI}
-\alias{MTI}
+\name{newMTI}
+\alias{newMTI}
 \title{
   Create a MTI object.
 }
 \description{
-  This function creates a new \code{\link{MTI-class}} object.
+  This function creates a new \code{\linkS4class{MTI}} object.
 }
 \usage{
-MTI( id="", mature_mirna="", species_mirna="", query="", target_gene="", target_gene_entrezid=0, species_target_gene="", report=list( ) )
+newMTI( id="", mature_mirna="", species_mirna="", query="", target_gene="", target_gene_entrezid=0, species_target_gene="", report=list( ) )
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -19,7 +19,7 @@ MTI( id="", mature_mirna="", species_mirna="", query="", target_gene="", target_
   \item{target_gene_entrezid}{the NCBI Entrezgene identifier of the
     target gene.}
   \item{species_target_gene}{the species of the target gene.}
-  \item{report}{a list of \code{\link{Report-class}} objects providing
+  \item{report}{a list of \code{\linkS4class{Report}} objects providing
     the evicence for the interaction.}
 }
 \value{
@@ -30,7 +30,7 @@ MTI( id="", mature_mirna="", species_mirna="", query="", target_gene="", target_
   the \code{pmid} is \code{NA}.
 }
 \seealso{
-  \code{\link{MTI-class}}, \code{\link{Report-class}}
+  \code{\linkS4class{MTI}}, \code{\linkS4class{Report}}
 }
 \author{
 Johannes Rainer

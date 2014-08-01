@@ -38,19 +38,102 @@ Using the code in this section we create the =SQLite= database for the package. 
 
 Assuming that the Excel file has been downloaded from http://mirtarbase.mbc.nctu.edu.tw/php/download.php and has been exported as a tabulator delimited txt file to =orig_files/txt=. Next we read this file, rename the columns and export it again as a tab delimited text file (over-writing the original one).
 
+It is a little more complicated to process this file due to the following problems:
++ Experiments column contains 5' RACE and 5" RACE and these will be recognized by =R= as quotes. Thus we have to read the file without specifying quotes.
++ Experiments column contains /Weak/ but also /WeaK/, will have to replace these.
++ Some Entrezgene IDs are NA.
+
 #+NAME: src.read.tables
 #+BEGIN_SRC R :results silent :exports results
   library( RSQLite )
-  MTI <- read.table( "orig_files/txt/miRTarBase_MTI.txt", sep="\t", as.is=TRUE, header=TRUE, check.names=FALSE )
+  ## the XLS file contains ' and " inside cells, thus have to set qupte=""
+  MTI <- read.table( "orig_files/txt/miRTarBase_MTI.txt", sep="\t", as.is=TRUE, header=TRUE, check.names=FALSE, quote="" )
   ## re-formating column names.
   CN <- tolower( colnames( MTI ) )
+  CN <- gsub( CN, pattern="\"", replacement="" )
   CN <- gsub( CN, pattern="[(|)]", replacement="" )
   CN <- gsub( CN, pattern=" ", replacement="_", fixed=TRUE )
   colnames( MTI ) <- CN
+  ## now I want to get rid of ALL \", ", ' in the table!
+  character.CN <- CN[ !CN %in% c( "target_gene_entrez_gene_id", "references_pmid" ) ]
+  ## loop through all these columns and replace "\""
+  for( current.CN in character.CN ){
+      MTI[ , current.CN ] <- gsub( MTI[ , current.CN ], pattern="\"", replacement="" )
+  }
+  ## now, replace all remaining " and ' in experiments
+  MTI[ , "experiments" ] <- gsub( MTI[ , "experiments" ], pattern="'", replacement="", fixed=TRUE )
   ## fixing the WeaK thing.
   MTI[ , "support_type" ] <- gsub( MTI[ , "support_type" ], pattern="WeaK", replacement="Weak", fixed=TRUE )
+  ## fix NA entrezids
+  which.NAs <- which( is.na( MTI$target_gene_entrez_gene_id ) )
+  ## for all of these, check if there is another gene, same species.
+  for( idx in which.NAs ){
+      tmp <- MTI[ MTI$target_gene==MTI[ idx, "target_gene" ] & MTI$species_target_gene==MTI[ idx, "species_target_gene" ], , drop=FALSE ]
+      if( length( tmp[ !is.na( tmp$target_gene_entrez_gene_id ), "target_gene_entrez_gene_id" ] ) > 0 ){
+          MTI[ idx, "target_gene_entrez_gene_id" ] <- unique( tmp[ !is.na( tmp$target_gene_entrez_gene_id ), "target_gene_entrez_gene_id" ] )
+      }
+  }
   ## exporting the file again.
   ##write.table( MTI, file="orig_files/txt/miRTarBase_MTI.txt", sep="\t", row.names=FALSE )
+
+
+#+END_SRC
+
+We could also create the database in a cleaner way, i.e. as a /real/ relational database with a table for the miRNA target gene interaction, a table with the evidence (Report) and one relating each other. The question remains whether that would improve it's performance.
+Note that each publication can have more than one report.
+
+#+BEGIN_SRC R :results silent :exports code :eval never
+  ## want to know whether the "report" is unique (i.e. pubmed id, experiments and support type) across all miRNAs are specific for a miRNA.
+  Report <- data.frame( matrix( ncol=4, nrow=0 ), stringsAsFactors=FALSE )
+  colnames( Report ) <- c( "report_id", "experiments", "support_type", "references_pmid" )
+  mti2report <- matrix( ncol=2, nrow=0 )
+  colnames( mti2report ) <- c( "mti_id", "report_id" )
+  for( i in 1:nrow( MTI ) ){
+      current.rep <- MTI[ i, c( "experiments", "support_type", "references_pmid" ) ]
+      ## check if it's in Report
+      idx <- which( rownames( Report )==paste0( current.rep[ 1, ], collapse="-" ) )
+      if( length( idx ) > 0 ){
+          ## have it already
+          #cat( "have already the report\n" )
+          report.id <- Report[ idx, "report_id" ]
+      }else{
+          rownames( current.rep ) <- paste0( current.rep[ 1, ], collapse="-" )
+          report.id <- paste0( "MTIR", sprintf( "%04d", ( nrow( Report )+1 ) ) )
+          current.rep <- cbind( report_id=report.id, current.rep, stringsAsFactors=FALSE )
+          Report <- rbind( Report, current.rep )
+      }
+      ## add it to mti2report.
+      mti2report <- rbind( mti2report, c( MTI[ i, 1 ], report.id ) )
+  }
+  ## at last define the MTI table.
+  MTI.table <- unique( MTI[ , !( colnames( MTI ) %in% colnames( Report ) ) ] )
+
+  ## ok, now we do have all tables.
+  con <- dbConnect( dbDriver( "SQLite" ), dbname="inst/extdata/db/mirtarbase_rel.db" )
+  if( dbExistsTable( con, "mti" ) ){
+      dbRemoveTable( con, "mti" )
+  }
+  if( dbExistsTable( con, "report" ) ){
+      dbRemoveTable( con, "report" )
+  }
+  if( dbExistsTable( con, "mti2report" ) ){
+      dbRemoveTable( con, "mti2report" )
+  }
+  ## mti
+  dbWriteTable( con, name="mti", MTI.table, row.names=FALSE )
+  dbGetQuery( con, "create index mirna_idx on mti (mirna);" )
+  dbGetQuery( con, "create index target_gene_idx on mti (target_gene);" )
+  dbGetQuery( con, "create index target_gene_entrez_idx on mti (target_gene_entrez_gene_id);" )
+  ## report
+  dbWriteTable( con, name="report", Report, row.names=FALSE )
+  dbGetQuery( con, "create index report_id_idx on report (report_id);" )
+  ## mti2report
+  dbWriteTable( con, name="mti2report", data.frame( mti2report, stringsAsFactors=FALSE ), row.names=FALSE )
+  dbGetQuery( con, "create index mti2report_report_idx on mti2report (report_id);" )
+  dbGetQuery( con, "create index mti2report_mti_idx on mti2report (mti_id);" )
+
+  dbDisconnect( con )
+
 #+END_SRC
 
 Next we create the database for the package. This requires a working installation of =SQLite=.
@@ -68,6 +151,35 @@ Next we create the database for the package. This requires a working installatio
   dbDisconnect( con )
 #+END_SRC
 
+
+** Performance evaluation of relational and not relational DB	   :noexport:
+
+#+NAME: src.performance.check
+#+BEGIN_SRC R :results silent :exports code :eval never
+  con <- dbConnect( dbDriver( "SQLite" ), dbname="inst/extdata/db/mirtarbase.db" )
+  con.rel <- dbConnect( dbDriver( "SQLite" ), dbname="inst/extdata/db/mirtarbase_rel.db" )
+
+  system.time(
+      Res <- dbGetQuery( con , "select * from mirtarbase where target_gene='BCL2L11';" )
+  )
+  system.time(
+      Res.rel <- dbGetQuery( con.rel , "select * from (select * from mti where target_gene='BCL2L11') as tmp join mti2report on tmp.mirtarbase_id=mti2report.mti_id join report on mti2report.report_id=report.report_id;" )
+  )
+  ## about the same speed.
+  any( Res$mirtarbase_id!=Res.rel$mirtarbase_id )
+  any( Res$references_pmid!=Res.rel$references_pmid )
+
+  system.time(
+      Res <- dbGetQuery( con , "select * from mirtarbase where species_mirna='Homo sapiens';" )
+  )
+  system.time(
+      Res.rel <- dbGetQuery( con.rel , "select * from (select * from mti where species_mirna='Homo sapiens') as tmp join mti2report on tmp.mirtarbase_id=mti2report.mti_id join report on mti2report.report_id=report.report_id;" )
+  )
+  ## Ok, so the relational version is slower... will stick to the non-relational one.
+#+END_SRC
+
+While the relational database version might have some advantages, it is slower. Thus we stick to the non-relational, single table version.
+
 ** Development
 
 At present (<2014-07-28>), the miRTarBase can only be exported as a XLS spread sheet. This file contains one line per MTI and publication:
@@ -81,6 +193,8 @@ At present (<2014-07-28>), the miRTarBase can only be exported as a XLS spread s
 Thus, an MTI between the same miRNA and target gene (for the same species!) is stored in several rows in the XLS sheet. Each row seems however be related to one publication, and the field /experiments/ seems to list all experiments performed in that publication.
 
 One question is whether the XLS sheet should be stored as-is to the database, or whether a clean relational database should be created. The benefit from the latter approach would be to allow more specific queries, e.g. all MTIs based on a certain support type.
+
+It would be possible to create a relational database with 3 tables, one describing the MTI, one listing the experiments performed in a publication to validate this MTI and one allowing for possible n:m relations (although it's not clear whether these really exist... yet).
 
 *** The MTI class
 
@@ -99,6 +213,9 @@ class MTI
 
 ** Changelog:
 
++ version 0.2.0 (2014-08-01):
+  - Fixed some series problems in the XLS sheet from the miRTarBase. Missed some MTIs in the previous database versions.
+  - Removed functions =getMtiForGene= and =getMtiForMiRNA= and replaced both with =getMti=.
 + version 0.1.0 (2014-07-29): it's done: the first /release/. Basic functionality, not Vignette, no S4 objects (yet).
 + version 0.0.1 (2014-07-28): added database.
 
@@ -135,7 +252,9 @@ Did that. That's the =MTI= object.
 This makes only sense, if the phenomiR does provide additional information.
 Will not do that, since the guys from miRTarBase claim that they provide the most data and include also other databases.
 
-*** TODO implement a central =getMti= function.
+*** DONE implement a central =getMti= function.
+    CLOSED: [2014-08-01 Fri 11:06]
+    - State "DONE"       from "TODO"       [2014-08-01 Fri 11:06]
 
 This function should take either one or more gene or miRNA IDs as input and return a list of MTI objects.
 Split the data.frame by miRTarBase IDs, make one MTI for each data.frame and nrow Report classes.
@@ -179,3 +298,11 @@ These should be put into /convertfunctions.R/.
 *** TODO Implement a function that retrieves additional miRNA annotations for a MTI.
 
 The idea is to get the pre-miRNA or miRNA family for a given mature miRNA.
+This should then also be exported if MTIs are exported as a =data.frame=.
+
+*** DONE Implent additional functions [2/2]
+    CLOSED: [2014-08-01 Fri 12:03]
+    - State "DONE"       from "TODO"       [2014-08-01 Fri 12:03]
+
++ [X] getAvailableExperiments: retrieves a unique list of experiments.
++ [X] getPmids: retrieves a unique list of PubMed IDs.

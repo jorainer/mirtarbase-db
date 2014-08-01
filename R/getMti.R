@@ -25,8 +25,7 @@ getMti <- function( x, type="symbol", operator="like", filter.mirna.species=getA
         }
         ## OK, I've got mirna ids, now I need the mature ones...
         x <- unique( FAM[ , "mirna_id" ] )
-        query.column <- "mirna"
-        query.x <- sQuote( x )
+        type <- "mirna_id"
     }
     ## have to get the mature miRNA IDs for the (pre) miRNA.
     if( type=="mirna_id" ){
@@ -76,8 +75,13 @@ getMti <- function( x, type="symbol", operator="like", filter.mirna.species=getA
     filter.mirna.string = paste0( " and species_mirna in (", paste( sQuote( filter.mirna.species ), collapse="," ), ")" )
     filter.gene.string = paste0( " and species_target_gene in (", paste( sQuote( filter.gene.species ), collapse="," ), ")" )
     filter.support.string = paste0( " and support_type in (", paste( sQuote( filter.support.type ), collapse = "," ), ")" )
+    ## connecting to the database
+    con <- getMtiCon()
     ## just return a data.frame
     if( return.data.frame ){
+        Res <- sapply( query.x, FUN=dogetMtiForWhatever, con=con, operator=operator, query.column=query.column, simplify=FALSE, USE.NAMES=FALSE, filterstring=paste0( filter.mirna.string, filter.gene.string, filter.support.string ) )
+        Res <- do.call( what=rbind, Res )
+        return( Res )
     }
     ## do the query:
     Res <- unlist( sapply( query.x, FUN=dogetMtiListForWhatever, con=con, query.column=query.column, operator=operator, filterstring=paste0( filter.mirna.string, filter.gene.string, filter.support.string ), simplify=FALSE, USE.NAMES=FALSE ) )

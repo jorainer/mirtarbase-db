@@ -49,7 +49,8 @@ mti2data.frame( x, colname.id="mirtarbase_id", colname.mirna="mirna", colname.mi
   A data.frame or a list of MTI objects.
 }
 \seealso{
-  \code{\link{data.frame2report}}, \code{\link{report2data.frame}}
+  \code{\link{data.frame2report}}, \code{\link{report2data.frame}},
+  \code{\linkS4class{MTI}}
 }
 \author{
 Johannes Rainer

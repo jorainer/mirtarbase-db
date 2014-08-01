@@ -1,7 +1,29 @@
 \name{MTI-class}
 \docType{class}
 \alias{MTI-class}
-
+\alias{show,MTI-method}
+\alias{id,MTI-method}
+\alias{matureMirna,MTI-method}
+\alias{mirnaSpecies,MTI-method}
+\alias{targetGene,MTI-method}
+\alias{targetGeneEntrezid,MTI-method}
+\alias{targetGeneSpecies,MTI-method}
+\alias{reports,MTI-method}
+\alias{pmid,MTI-method}
+\alias{experiments,MTI-method}
+\alias{supportedBy,MTI-method}
+\alias{reportCount,MTI-method}
+\alias{id}
+\alias{MTI}
+\alias{matureMirna}
+\alias{mirnaSpecies}
+\alias{targetGene}
+\alias{targetGeneEntrezid}
+\alias{targetGeneSpecies}
+\alias{reports}
+\alias{reportCount}
+\alias{initialize}
+\alias{initialize,MTI-method}
 \title{Class \dQuote{MTI}, miRNA target gene interaction }
 \description{
   The class \dQuote{MTI} describes a miRNA target gene interaction as
@@ -9,7 +31,7 @@
 }
 \section{Objects from the Class}{
 Objects can be created by calls of the form \code{new("MTI", ...)} or
-using the \code{ \link{MTI} } function (the preferred way).
+using the \code{ \link{newMTI} } function (the preferred way).
 }
 \section{Slots}{
   \describe{
@@ -57,11 +79,19 @@ using the \code{ \link{MTI} } function (the preferred way).
   Instead of directly accessing the slots of the class, the getter methods listed above should be used instead.
 }
 \seealso{
-	\code{\linkS4class{Report}}, \code{\link{getMtiForGene}}, \code{\link{getMtiForMiRNA}}
+	\code{\linkS4class{Report}}, \code{\link{getMti}}
 }
 \examples{
 
+## get a MTI from the database.
+MTI <- getMti( "MIRT006481", type="mirtarbase_id" )[[1]]
 
+## list the PubMed IDs providing evidence for this interaction
+pmid( MTI )
+## the mature miRNA name
+matureMirna( MTI )
+
+reports( MTI )
 
 }
 \keyword{classes}

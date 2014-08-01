@@ -1,13 +1,13 @@
-\name{Report}
-\alias{Report}
+\name{newReport}
+\alias{newReport}
 \title{
   Create a Report object.
 }
 \description{
-  This function creates a new \code{\link{Report-class}} object.
+  This function creates a new \code{\linkS4class{Report}} object.
 }
 \usage{
-Report( pmid=0, support_type="", experiments="" )
+newReport( pmid=0, support_type="", experiments="" )
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -19,7 +19,7 @@ Report( pmid=0, support_type="", experiments="" )
   A Report object.
 }
 \seealso{
-  \code{\link{MTI-class}}, \code{\link{Report-class}}
+  \code{\linkS4class{MTI}}, \code{\linkS4class{Report}}
 }
 \author{
 Johannes Rainer
