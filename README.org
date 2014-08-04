@@ -215,6 +215,7 @@ class MTI
 
 + version 0.2.1 (2014-08-01);
   - Added some functions to retrieve annotations from the mirbase package.
+  - Added the Vignette.
 + version 0.2.0 (2014-08-01):
   - Fixed some series problems in the XLS sheet from the miRTarBase. Missed some MTIs in the previous database versions.
   - Removed functions =getMtiForGene= and =getMtiForMiRNA= and replaced both with =getMti=.
@@ -244,7 +245,9 @@ Did that. That's the =MTI= object.
 *** DONE Implement the function to get MTIs for a specified gene.
     CLOSED: [2014-07-29 Tue 10:52]
     - State "DONE"       from "TODO"       [2014-07-29 Tue 10:52]
-*** TODO Create a vignette for this package.
+*** DONE Create a vignette for this package.
+    CLOSED: [2014-08-04 Mon 08:35]
+    - State "DONE"       from "TODO"       [2014-08-04 Mon 08:35]
 *** CANCELED Include also the phenomiR database?
     CLOSED: [2014-07-31 Thu 10:59]
     - State "CANCELED"   from "DONE"       [2014-07-31 Thu 10:59] \\

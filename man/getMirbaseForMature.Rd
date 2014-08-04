@@ -29,8 +29,10 @@ mgetMirbaseForMature( x, operator="=", tables=c( "mirna" ), ifnotfound=NA )
   \item{tables}{
     Character vector of the tables from which information should be
     returned. Currently \dQuote{mirna} (informations about the
-    pre-miRNA) and \dQuote{mirna\_prefam} (miRNA family information) are
-    supported.
+    pre-miRNA), \dQuote{mirna\_prefam} (miRNA family information),
+    \dQuote{mirna\_cluster} (miRNA cluster) and
+    \dQuote{mirna_chromosome_build} (chromosomal alignment of the
+    pre-miRNA) are supported.
   }
   \item{ifnotfound}{
     Will be returned if a miRNA is not found.

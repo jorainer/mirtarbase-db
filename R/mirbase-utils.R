@@ -14,9 +14,9 @@ getMirbaseCon <- function( ){
 getMirbaseForMature <- function( x, operator="=", tables=c( "mirna" ) ){
     operator <- match.arg( operator, c( "=", "!=", "like", "not like" ) )
     tables <- unique( c( "mirna", tables ) )  ## always need that...
-    notSupported <- !(tables %in% c( "mirna", "mirna_prefam" ) )
+    notSupported <- !(tables %in% c( "mirna", "mirna_prefam", "mirna_cluster", "mirna_chromosome_build" ) )
     if( sum( notSupported ) > 0 ){
-        warning( "Tables ", paste( notSupported, collapse=", " ), "not supported; have been removed." )
+        warning( "Tables ", paste( tables[ notSupported ], collapse=", " ), "not supported; have been removed." )
         tables <- tables[ !notSupported ]
     }
     if( length( x ) > 1 ){
@@ -27,6 +27,12 @@ getMirbaseForMature <- function( x, operator="=", tables=c( "mirna" ) ){
     Query <- paste0( "select * from ( select * from mirna_mature where mature_name ", operator, " ", sQuote( x ), " ) as tmp join mirna_pre_mature on tmp.auto_mature=mirna_pre_mature.auto_mature join mirna on mirna_pre_mature._id=mirna._id" )
     if( any( tables=="mirna_prefam" ) ){
         Query <- paste0( Query, " join mirna_2_prefam on mirna._id=mirna_2_prefam._id join mirna_prefam on mirna_2_prefam.auto_prefam=mirna_prefam.auto_prefam" )
+    }
+    if( any( tables=="mirna_cluster" ) ){
+        Query <- paste0( Query, " join mirna_cluster on mirna.mirna_id=mirna_cluster.mirna_id" )
+    }
+    if( any( tables=="mirna_chromosome_build" ) ){
+        Query <- paste0( Query, " join mirna_chromosome_build on mirna._id=mirna_chromosome_build._id" )
     }
     return( dbGetQuery( getMirbaseCon(), paste0( Query, ";" ) ) )
 }
