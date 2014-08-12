@@ -67,6 +67,8 @@ It is a little more complicated to process this file due to the following proble
 -   Experiments column contains *Weak* but also *WeaK*, will have to replace these.
 -   Some Entrezgene IDs are NA.
 
+All in all, we hope that we don't encounter some more issues in the next release.
+
     library( RSQLite )
     ## the XLS file contains ' and " inside cells, thus have to set qupte=""
     MTI <- read.table( "orig_files/txt/miRTarBase_MTI.txt", sep="\t", as.is=TRUE, header=TRUE, check.names=FALSE, quote="" )
@@ -98,7 +100,7 @@ It is a little more complicated to process this file due to the following proble
         }
     }
     ## exporting the file again.
-    ##write.table( MTI, file="orig_files/txt/miRTarBase_MTI.txt", sep="\t", row.names=FALSE )
+    ## write.table( MTI, file="orig_files/txt/miRTarBase_MTI.txt", sep="\t", row.names=FALSE )
 
 We could also create the database in a cleaner way, i.e. as a *real* relational database with a table for the miRNA target gene interaction, a table with the evidence (Report) and one relating each other. The question remains whether that would improve it's performance.
 Note that each publication can have more than one report.
