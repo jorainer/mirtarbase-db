@@ -59,7 +59,15 @@ getMti( x, type="symbol", operator="like", filter.mirna.species=getAvailableSpec
   \code{_} matching one character).
 
   Note that for \code{type="entrezid"}
-  and \code{type="references_pmid"} always the operator \dQuote{=} is used.
+  and \code{type="references_pmid"} the operator \dQuote{=} is always
+  used. For all other types it is possible to use a \dQuote{like} which
+  allows a case insenitive query, or even a search using pattern.
+
+  For \code{length(x)>20} the function will internally query the
+  database in a multi-threaded way (using \code{mclapply}, thus, the
+  number of concurrent threads can be controlled with the option
+  \dQuote{mc.cores}, e.g. setting \code{options( mc.cores=4 )} will run
+  the code on 4 CPUs).
 
 }
 \value{

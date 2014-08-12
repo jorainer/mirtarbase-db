@@ -84,7 +84,11 @@ getMti <- function( x, type="symbol", operator="like", filter.mirna.species=getA
         return( Res )
     }
     ## do the query:
-    Res <- unlist( sapply( query.x, FUN=dogetMtiListForWhatever, con=con, query.column=query.column, operator=operator, filterstring=paste0( filter.mirna.string, filter.gene.string, filter.support.string ), simplify=FALSE, USE.NAMES=FALSE ) )
+    if( length( query.x ) > 20 ){
+        Res <- unlist( mclapply( query.x, FUN=dogetMtiListForWhatever, con=mtiDB( v=FALSE ), query.column=query.column, operator=operator, filterstring=paste0( filter.mirna.string, filter.gene.string, filter.support.string ) ) )
+    }else{
+        Res <- unlist( sapply( query.x, FUN=dogetMtiListForWhatever, con=con, query.column=query.column, operator=operator, filterstring=paste0( filter.mirna.string, filter.gene.string, filter.support.string ), simplify=FALSE, USE.NAMES=FALSE ) )
+    }
     return( Res )
 }
 
